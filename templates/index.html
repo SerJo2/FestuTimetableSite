@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📅 Расписание ДВГУПС</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="https://dvgups.ru/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <header class="header">
+            <div class="university-badge">
+                <div class="university-logo">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="university-info">
+                    <h1>Расписание ДВГУПС</h1>
+                    <p class="university-subtitle">Нефицальный сайт расписания</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Панель выбора -->
+            <div class="selection-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-sliders-h"></i> Выберите параметры</h2>
+                    <p>Укажите институт, группу и дату для просмотра расписания</p>
+                </div>
+
+                <div class="controls-grid">
+                    <!-- Выбор института -->
+                    <div class="control-group">
+                        <label for="institute-select">
+                            <i class="fas fa-building"></i> Институт:
+                        </label>
+                        <select id="institute-select" class="form-control">
+                            <option value="">-- Выберите институт --</option>
+                            {% for id, name in institutes.items() %}
+                            <option value="{{ id }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Выбор группы -->
+                    <div class="control-group">
+                        <label for="group-select">
+                            <i class="fas fa-users"></i> Группа:
+                        </label>
+                        <select id="group-select" class="form-control" disabled>
+                            <option value="">-- Сначала выберите институт --</option>
+                        </select>
+                        <div class="group-count" id="group-count">
+                            <i class="fas fa-info-circle"></i> Групп: 0
+                        </div>
+                    </div>
+
+                    <!-- Выбор даты -->
+                    <div class="control-group">
+                        <label for="date-input">
+                            <i class="fas fa-calendar-alt"></i> Дата:
+                        </label>
+                        <input type="date" id="date-input" class="form-control">
+                        <div class="date-actions">
+                            <button type="button" id="today-btn" class="btn-small">
+                                <i class="fas fa-calendar-day"></i> Сегодня
+                            </button>
+                            <button type="button" id="tomorrow-btn" class="btn-small">
+                                <i class="fas fa-forward"></i> Завтра
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="action-buttons">
+                    <button id="show-schedule-btn" class="btn-primary" disabled>
+                        <i class="fas fa-eye"></i> Показать расписание
+                    </button>
+                    <button id="reset-btn" class="btn-secondary">
+                        <i class="fas fa-redo"></i> Сбросить
+                    </button>
+                    <button id="export-btn" class="btn-success" disabled>
+                        <i class="fas fa-download"></i> Экспорт
+                    </button>
+                </div>
+            </div>
+
+            <!-- Индикатор загрузки -->
+            <div id="loading-indicator" class="loading-indicator" style="display: none;">
+                <div class="loader">
+                    <div class="spinner"></div>
+                    <p>Загрузка расписания...</p>
+                    <p class="loader-subtext">Пожалуйста, подождите</p>
+                </div>
+            </div>
+
+            <!-- Сообщение об ошибке -->
+            <div id="error-message" class="error-message" style="display: none;">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="error-content">
+                    <h3 id="error-title">Ошибка</h3>
+                    <p id="error-text"></p>
+                </div>
+                <button class="error-close" onclick="document.getElementById('error-message').style.display='none'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Контейнер для расписания -->
+            <div id="schedule-container" class="schedule-container">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h3>Расписание не загружено</h3>
+                    <p>Выберите институт, группу и дату, затем нажмите "Показать расписание"</p>
+                    <div class="empty-tips">
+                        <div class="tip">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Институт → Группа → Дата → Показать</span>
+                        </div>
+                        <div class="tip">
+                            <i class="fas fa-clock"></i>
+                            <span>Данные берутся из официальной системы ДВГУПС</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Подвал -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4><i class="fas fa-info-circle"></i> О системе</h4>
+                    <p>Система просмотра расписания без MAX</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4><i class="fas fa-server"></i> Статус системы</h4>
+                    <div class="status-indicator">
+                        <span class="status-dot" id="status-dot"></span>
+                        <span id="status-text">Проверка...</span>
+                    </div>
+                    <p class="status-update" id="status-update"></p>
+                </div>
+
+                <div class="footer-section">
+                    <h4><i class="fas fa-code"></i> Разработка</h4>
+                    <p>Создатель: <a href="https://github.com/SerJo2">Hentai-OniiChan</a></p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p class="version">Версия 1.0.0</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
