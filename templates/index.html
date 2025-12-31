@@ -6,7 +6,34 @@
     <title>📅 Расписание ДВГУПС</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="https://dvgups.ru/favicon.ico">
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+    <link rel="mask-icon" href="{{ url_for('static', filename='favicon/safari-pinned-tab.svg') }}" color="#0056b3">
+    <meta name="msapplication-TileColor" content="#0056b3">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Основные мета-теги -->
+    <meta name="description" content="Расписание занятий ДВГУПС. Узнайте расписание своей группы. Актуальное расписание Дальневосточного государственного университета путей сообщения.">
+    <meta name="keywords" content="расписание ДВГУПС, ДВГУПС расписание, расписание занятий, расписание пар, Дальневосточный университет путей сообщения, студенческое расписание">
+    <meta name="author" content="Onii Chan">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph для соцсетей -->
+    <meta property="og:title" content="Расписание ДВГУПС | Официальное расписание занятий">
+    <meta property="og:description" content="Актуальное расписание занятий ДВГУПС для всех групп и преподавателей">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dvgupstimetable.ru">
+    <meta property="og:image" content="{{ url_for('static', filename='og-image.jpg', _external=True) }}">
+    <meta property="og:site_name" content="Расписание ДВГУПС">
+
+    <!-- Для ВКонтакте -->
+    <meta property="vk:image" content="{{ url_for('static', filename='og-image.jpg', _external=True) }}">
+
+    <!-- Для Telegram -->
+    <meta property="telegram:image" content="{{ url_for('static', filename='og-image.jpg', _external=True) }}">
 </head>
 <body>
     <div class="container">
@@ -18,7 +45,7 @@
                 </div>
                 <div class="university-info">
                     <h1>Расписание ДВГУПС</h1>
-                    <p class="university-subtitle">Нефицальный сайт расписания</p>
+                    <p class="university-subtitle">Неофицальный сайт расписания</p>
                 </div>
             </div>
         </header>
@@ -154,7 +181,9 @@
 
                 <div class="footer-section">
                     <h4><i class="fas fa-code"></i> Разработка</h4>
-                    <p>Создатель: <a href="https://github.com/SerJo2">Hentai-OniiChan</a></p>
+                    <p>Создатель: <a href="https://github.com/SerJo2">OniiChan</a></p>
+                    <p>Телега: @psibladeabuzerz</p>
+                    <p>Задонатьте на хост 10+ рублей пжпж</p>
                 </div>
             </div>
 

@@ -5,22 +5,20 @@ from festutimetable.FestuApi import DateNotFoundError, GroupNotFoundError
 import sys
 import os
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'festu_timetable_lib'))
-
-app = Flask(__name__)
+application = Flask(__name__)
 
 from institute_groups import INSTITUTES, INSTITUTE_GROUPS
 
 timetable_service = TimetableService()
 
 
-@app.route('/')
+@application.route('/')
 def index():
     """Главная страница"""
     return render_template('index.html', institutes=INSTITUTES)
 
 
-@app.route('/api/groups/<institute_id>')
+@application.route('/api/groups/<institute_id>')
 def get_groups(institute_id):
     """Получить список групп для выбранного института"""
     try:
@@ -42,7 +40,7 @@ def get_groups(institute_id):
         }), 400
 
 
-@app.route('/api/schedule', methods=['POST'])
+@application.route('/api/schedule', methods=['POST'])
 def get_schedule():
     """Получить расписание для выбранной группы и даты"""
     try:
@@ -217,7 +215,7 @@ def generate_schedule_html(schedule_data, group, date):
     return html
 
 
-@app.route('/api/health')
+@application.route('/api/health')
 def health_check():
     """Проверка здоровья сервера"""
     return jsonify({
@@ -228,4 +226,4 @@ def health_check():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+   application.run(debug=True, port=5000)
