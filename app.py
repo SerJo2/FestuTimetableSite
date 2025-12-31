@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+from flask_caching import Cache
 from datetime import datetime
 from festutimetable import TimetableService
 from festutimetable.FestuApi import DateNotFoundError, GroupNotFoundError
@@ -6,12 +7,13 @@ import sys
 import os
 
 application = Flask(__name__)
+cache = Cache(application, config={'CACHE_TYPE': 'simple'})
 
 from institute_groups import INSTITUTES, INSTITUTE_GROUPS
 
 timetable_service = TimetableService()
 
-
+@cache.cached(timeout=300)
 @application.route('/')
 def index():
     """Главная страница"""
@@ -39,8 +41,8 @@ def get_groups(institute_id):
             'error': 'Неверный ID института'
         }), 400
 
-
 @application.route('/api/schedule', methods=['POST'])
+@cache.cached(timeout=300, query_string=True)
 def get_schedule():
     """Получить расписание для выбранной группы и даты"""
     try:
@@ -224,6 +226,13 @@ def health_check():
         'timestamp': datetime.now().isoformat()
     })
 
+@application.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+@application.errorhandler(500)
+def internal_error(error):
+    return render_template('500.html'), 500
 
 if __name__ == '__main__':
    application.run(debug=True, port=5000)
