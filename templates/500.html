@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ошибка сервера (500) - Расписание ДВГУПС</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='favicon/site.webmanifest') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header" style="border-radius: 0;">
+            <div class="university-badge">
+                <div class="university-logo">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div class="university-info">
+                    <h1>Расписание ДВГУПС</h1>
+                    <p class="university-subtitle">Дальневосточный государственный университет путей сообщения</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="error-container">
+                <div class="error-decoration"></div>
+                <h1>500</h1>
+                <h2><i class="fas fa-exclamation-triangle"></i> Внутренняя ошибка сервера</h2>
+
+                <p>
+                    На сервере произошла непредвиденная ошибка.
+                    Мы уже уведомлены о проблеме и работаем над ее решением.
+                </p>
+
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: left;">
+                    <h4 style="color: var(--danger-color); margin-bottom: 10px;">
+                        <i class="fas fa-tools"></i> Что можно сделать:
+                    </h4>
+                    <ul style="text-align: left; padding-left: 20px; color: var(--secondary-color);">
+                        <li>Обновите страницу через несколько минут</li>
+                        <li>Проверьте подключение к интернету</li>
+                        <li>Очистите кэш браузера</li>
+                        <li>Попробуйте использовать другой браузер</li>
+                    </ul>
+                </div>
+
+                <div class="action-buttons" style="justify-content: center; margin-top: 30px;">
+                    <a href="{{ url_for('index') }}" class="btn-primary">
+                        <i class="fas fa-home"></i> На главную
+                    </a>
+                    <button onclick="location.reload()" class="btn-secondary">
+                        <i class="fas fa-redo"></i> Обновить
+                    </button>
+                </div>
+
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <p style="font-size: 0.9rem; color: var(--danger-color);">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Если ошибка повторяется, пожалуйста,
+                        <a href="https://t.me/psibladeabuzerz"
+                           style="color: var(--danger-color); font-weight: bold;">
+                            сообщите нам об этом
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-bottom">
+                <p class="version">Ошибка 500 | Внутренняя ошибка сервера</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Автоматическое обновление через 30 секунд
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

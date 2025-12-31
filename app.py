@@ -1,26 +1,26 @@
 from flask import Flask, render_template, request, jsonify
+from flask_caching import Cache
 from datetime import datetime
 from festutimetable import TimetableService
 from festutimetable.FestuApi import DateNotFoundError, GroupNotFoundError
 import sys
 import os
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'festu_timetable_lib'))
-
-app = Flask(__name__)
+application = Flask(__name__)
+cache = Cache(application, config={'CACHE_TYPE': 'simple'})
 
 from institute_groups import INSTITUTES, INSTITUTE_GROUPS
 
 timetable_service = TimetableService()
 
-
-@app.route('/')
+@cache.cached(timeout=300)
+@application.route('/')
 def index():
     """Главная страница"""
     return render_template('index.html', institutes=INSTITUTES)
 
 
-@app.route('/api/groups/<institute_id>')
+@application.route('/api/groups/<institute_id>')
 def get_groups(institute_id):
     """Получить список групп для выбранного института"""
     try:
@@ -41,8 +41,8 @@ def get_groups(institute_id):
             'error': 'Неверный ID института'
         }), 400
 
-
-@app.route('/api/schedule', methods=['POST'])
+@application.route('/api/schedule', methods=['POST'])
+@cache.cached(timeout=300, query_string=True)
 def get_schedule():
     """Получить расписание для выбранной группы и даты"""
     try:
@@ -217,7 +217,7 @@ def generate_schedule_html(schedule_data, group, date):
     return html
 
 
-@app.route('/api/health')
+@application.route('/api/health')
 def health_check():
     """Проверка здоровья сервера"""
     return jsonify({
@@ -226,6 +226,13 @@ def health_check():
         'timestamp': datetime.now().isoformat()
     })
 
+@application.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
+
+@application.errorhandler(500)
+def internal_error(error):
+    return render_template('500.html'), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+   application.run(debug=True, port=5000)
