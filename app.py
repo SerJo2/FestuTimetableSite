@@ -42,7 +42,6 @@ def get_groups(institute_id):
         }), 400
 
 @application.route('/api/schedule', methods=['POST'])
-@cache.cached(timeout=300, query_string=True)
 def get_schedule():
     """Получить расписание для выбранной группы и даты"""
     try:
@@ -82,7 +81,6 @@ def get_schedule():
             schedule_data = []
             for lecture in day_timetable.lectures:
                 schedule_data.append({
-                    'time': lecture.time,
                     'number': lecture.number,
                     'name': lecture.name,
                     'classroom': lecture.classroom,
@@ -156,10 +154,9 @@ def generate_schedule_html(schedule_data, group, date):
                 <thead>
                     <tr>
                         <th><i class="fas fa-clock"></i> Время</th>
-                        <th><i class="fas fa-hashtag"></i> №</th>
                         <th><i class="fas fa-book"></i> Дисциплина</th>
                         <th><i class="fas fa-door-open"></i> Аудитория</th>
-                        <th><i class="fas fa-chalkboard-teacher"></i> Преподаватель</th>
+                        <th><i class="fa-solid fa-chalkboard-user"></i> Преподаватель</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -171,7 +168,6 @@ def generate_schedule_html(schedule_data, group, date):
 
         html += f'''
                     <tr class="{row_class}">
-                        <td class="time-cell">{lesson['time']}</td>
                         <td class="number-cell">{lesson['number']}</td>
                         <td class="subject-cell">{lesson['name']}</td>
                         <td class="room-cell">
