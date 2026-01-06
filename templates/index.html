@@ -52,10 +52,22 @@
 
         <!-- Основной контент -->
         <main class="main-content">
-            <!-- Панель выбора -->
-            <div class="selection-panel">
+            <!-- Вкладки -->
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="group-tab">
+                        <i class="fas fa-users"></i> По группе
+                    </button>
+                    <button class="tab-btn" data-tab="teacher-tab">
+                        <i class="fas fa-user-tie"></i> По преподавателям
+                    </button>
+                </div>
+            </div>
+
+            <!-- Панель выбора для ГРУПП -->
+            <div id="group-tab" class="selection-panel active-tab">
                 <div class="panel-header">
-                    <h2><i class="fas fa-sliders-h"></i> Выберите параметры</h2>
+                    <h2><i class="fas fa-sliders-h"></i> Выберите параметры для группы</h2>
                     <p>Укажите институт, группу и дату для просмотра расписания</p>
                 </div>
 
@@ -88,15 +100,15 @@
 
                     <!-- Выбор даты -->
                     <div class="control-group">
-                        <label for="date-input">
+                        <label for="group-date-input">
                             <i class="fas fa-calendar-alt"></i> Дата:
                         </label>
-                        <input type="date" id="date-input" class="form-control">
+                        <input type="date" id="group-date-input" class="form-control">
                         <div class="date-actions">
-                            <button type="button" id="today-btn" class="btn-small">
+                            <button type="button" id="group-today-btn" class="btn-small">
                                 <i class="fas fa-calendar-day"></i> Сегодня
                             </button>
-                            <button type="button" id="tomorrow-btn" class="btn-small">
+                            <button type="button" id="group-tomorrow-btn" class="btn-small">
                                 <i class="fas fa-forward"></i> Завтра
                             </button>
                         </div>
@@ -105,13 +117,76 @@
 
                 <!-- Кнопки действий -->
                 <div class="action-buttons">
-                    <button id="show-schedule-btn" class="btn-primary" disabled>
+                    <button id="group-show-btn" class="btn-primary" disabled>
                         <i class="fas fa-eye"></i> Показать расписание
                     </button>
-                    <button id="reset-btn" class="btn-secondary">
+                    <button id="group-reset-btn" class="btn-secondary">
                         <i class="fas fa-redo"></i> Сбросить
                     </button>
-                    <button id="export-btn" class="btn-success" disabled>
+                    <button id="group-export-btn" class="btn-success" disabled>
+                        <i class="fas fa-download"></i> Экспорт
+                    </button>
+                </div>
+            </div>
+
+            <!-- Панель выбора для ПРЕПОДАВАТЕЛЕЙ -->
+            <div id="teacher-tab" class="selection-panel">
+                <div class="panel-header">
+                    <h2><i class="fas fa-sliders-h"></i> Выберите параметры для преподавателя</h2>
+                    <p>Укажите кафедру, преподавателя и дату для просмотра расписания</p>
+                </div>
+
+                <div class="controls-grid">
+                    <!-- Выбор кафедры -->
+                    <div class="control-group">
+                        <label for="department-select">
+                            <i class="fas fa-building"></i> Кафедра:
+                        </label>
+                        <select id="department-select" class="form-control">
+                            <option value="">-- Выберите кафедру --</option>
+                            <!-- Кафедры будут загружены динамически -->
+                        </select>
+                    </div>
+
+                    <!-- Выбор преподавателя -->
+                    <div class="control-group">
+                        <label for="teacher-select">
+                            <i class="fas fa-user-tie"></i> Преподаватель:
+                        </label>
+                        <select id="teacher-select" class="form-control" disabled>
+                            <option value="">-- Сначала выберите кафедру --</option>
+                        </select>
+                        <div class="group-count" id="teacher-count">
+                            <i class="fas fa-info-circle"></i> Преподавателей: 0
+                        </div>
+                    </div>
+
+                    <!-- Выбор даты -->
+                    <div class="control-group">
+                        <label for="teacher-date-input">
+                            <i class="fas fa-calendar-alt"></i> Дата:
+                        </label>
+                        <input type="date" id="teacher-date-input" class="form-control">
+                        <div class="date-actions">
+                            <button type="button" id="teacher-today-btn" class="btn-small">
+                                <i class="fas fa-calendar-day"></i> Сегодня
+                            </button>
+                            <button type="button" id="teacher-tomorrow-btn" class="btn-small">
+                                <i class="fas fa-forward"></i> Завтра
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="action-buttons">
+                    <button id="teacher-show-btn" class="btn-primary" disabled>
+                        <i class="fas fa-eye"></i> Показать расписание
+                    </button>
+                    <button id="teacher-reset-btn" class="btn-secondary">
+                        <i class="fas fa-redo"></i> Сбросить
+                    </button>
+                    <button id="teacher-export-btn" class="btn-success" disabled>
                         <i class="fas fa-download"></i> Экспорт
                     </button>
                 </div>
@@ -147,11 +222,11 @@
                         <i class="fas fa-calendar-plus"></i>
                     </div>
                     <h3>Расписание не загружено</h3>
-                    <p>Выберите институт, группу и дату, затем нажмите "Показать расписание"</p>
+                    <p>Выберите параметры и нажмите "Показать расписание"</p>
                     <div class="empty-tips">
                         <div class="tip">
                             <i class="fas fa-lightbulb"></i>
-                            <span>Институт → Группа → Дата → Показать</span>
+                            <span>Используйте вкладки для выбора типа расписания</span>
                         </div>
                         <div class="tip">
                             <i class="fas fa-clock"></i>
@@ -162,7 +237,7 @@
             </div>
         </main>
 
-        <!-- Подвал -->
+        <!-- Подвал (остается без изменений) -->
         <footer class="footer">
             <div class="footer-content">
                 <div class="footer-section">
@@ -188,7 +263,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p class="version">Версия 1.0.0</p>
+                <p class="version">Версия 1.1.0</p>
             </div>
         </footer>
     </div>
