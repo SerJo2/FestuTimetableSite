@@ -6,6 +6,7 @@ from festutimetable.FestuApi import DateNotFoundError, GroupNotFoundError
 import requests
 import sys
 import os
+from flask import send_from_directory
 
 application = Flask(__name__)
 cache = Cache(application, config={'CACHE_TYPE': 'simple'})
@@ -557,7 +558,6 @@ def not_found_error(error):
 @application.errorhandler(500)
 def internal_error(error):
     return render_template('500.html'), 500
-
 
 if __name__ == '__main__':
     application.run(debug=True, port=5000)
