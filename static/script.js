@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const groupTab = document.getElementById('group-tab');
     const teacherTab = document.getElementById('teacher-tab');
-    let currentMode = 'group'; // 'group' или 'teacher'
+    const auditoriumTab = document.getElementById('auditorium-tab');
+    let currentMode = 'group'; // 'group', 'teacher' или 'auditorium'
 
     // Обработчики переключения вкладок
     tabButtons.forEach(button => {
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Скрываем все панели
             groupTab.classList.remove('active-tab');
             teacherTab.classList.remove('active-tab');
+            auditoriumTab.classList.remove('active-tab');
 
             // Показываем выбранную панель
             if (tabId === 'group-tab') {
@@ -28,6 +30,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 // При первом открытии вкладки преподавателя загружаем кафедры
                 if (!departmentsLoaded) {
                     loadDepartments();
+                }
+            } else if (tabId === 'auditorium-tab') {
+                auditoriumTab.classList.add('active-tab');
+                currentMode = 'auditorium';
+                // При первом открытии вкладки аудитории загружаем аудитории
+                if (!auditoriumsLoaded) {
+                    loadAuditoriums();
                 }
             }
 
@@ -47,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ==================== ДАННЫЕ ====================
     let departmentsLoaded = false;
+    let auditoriumsLoaded = false;
     const departments = {
         "126": "Автоматизированные, телекоммуникационные и электротехнические системы",
         "88": "Автоматика, телемеханика и связь",
@@ -99,6 +109,8 @@ document.addEventListener('DOMContentLoaded', function() {
         "73": "ЮЯИЖТ-филиал ДВГУПС в г. Нерюнгри"
     };
 
+    const auditoriums = {}; // Будет заполняться динамически
+
     // ==================== DOM ЭЛЕМЕНТЫ ====================
     // Группы
     const instituteSelect = document.getElementById('institute-select');
@@ -122,6 +134,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const teacherTomorrowButton = document.getElementById('teacher-tomorrow-btn');
     const teacherCount = document.getElementById('teacher-count');
 
+    // Аудитории
+    const auditoriumSelect = document.getElementById('auditorium-select');
+    const auditoriumDateInput = document.getElementById('auditorium-date-input');
+    const auditoriumShowButton = document.getElementById('auditorium-show-btn');
+    const auditoriumResetButton = document.getElementById('auditorium-reset-btn');
+    const auditoriumExportButton = document.getElementById('auditorium-export-btn');
+    const auditoriumTodayButton = document.getElementById('auditorium-today-btn');
+    const auditoriumTomorrowButton = document.getElementById('auditorium-tomorrow-btn');
+    const auditoriumCount = document.getElementById('auditorium-count');
+
     // Общие элементы
     const scheduleContainer = document.getElementById('schedule-container');
     const loadingIndicator = document.getElementById('loading-indicator');
@@ -139,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0];
         groupDateInput.value = today;
         teacherDateInput.value = today;
+        auditoriumDateInput.value = today;
     }
 
     // Проверка статуса сервера
@@ -173,6 +196,41 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         departmentsLoaded = true;
+    }
+
+    // Загрузка аудиторий
+    async function loadAuditoriums() {
+        auditoriumSelect.innerHTML = '<option value="">Загрузка аудиторий...</option>';
+        auditoriumSelect.disabled = true;
+        auditoriumShowButton.disabled = true;
+        auditoriumExportButton.disabled = true;
+
+        try {
+            const response = await fetch('/api/auditoriums');
+            const data = await response.json();
+
+            if (data.success) {
+                auditoriumSelect.innerHTML = '<option value="">-- Выберите аудиторию --</option>';
+
+                data.auditoriums.forEach(auditorium => {
+                    const option = document.createElement('option');
+                    option.value = auditorium.id;
+                    option.textContent = auditorium.name;
+                    auditoriumSelect.appendChild(option);
+                    auditoriums[auditorium.id] = auditorium.name;
+                });
+
+                auditoriumSelect.disabled = false;
+                auditoriumsLoaded = true;
+                auditoriumCount.innerHTML = `<i class="fas fa-info-circle"></i> Аудиторий: ${data.auditoriums.length}`;
+            } else {
+                auditoriumSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+                showError('Ошибка загрузки', data.error || 'Неизвестная ошибка');
+            }
+        } catch (error) {
+            auditoriumSelect.innerHTML = '<option value="">Ошибка соединения</option>';
+            showError('Ошибка сети', 'Не удалось загрузить список аудиторий');
+        }
     }
 
     // Загрузка преподавателей для кафедры
@@ -405,6 +463,73 @@ document.addEventListener('DOMContentLoaded', function() {
         downloadFile(filename, scheduleText);
     });
 
+    // ==================== ОБРАБОТЧИКИ СОБЫТИЙ ДЛЯ АУДИТОРИЙ ====================
+
+    // Обновление состояния кнопок для аудиторий
+    auditoriumSelect.addEventListener('change', updateAuditoriumButtons);
+    auditoriumDateInput.addEventListener('change', updateAuditoriumButtons);
+
+    function updateAuditoriumButtons() {
+        const isValid = auditoriumSelect.value && auditoriumDateInput.value;
+        auditoriumShowButton.disabled = !isValid;
+        auditoriumExportButton.disabled = !isValid;
+    }
+
+    // Кнопки сегодня/завтра для аудиторий
+    auditoriumTodayButton.addEventListener('click', function() {
+        const today = new Date().toISOString().split('T')[0];
+        auditoriumDateInput.value = today;
+        triggerAuditoriumDateChange();
+    });
+
+    auditoriumTomorrowButton.addEventListener('click', function() {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        auditoriumDateInput.value = tomorrow.toISOString().split('T')[0];
+        triggerAuditoriumDateChange();
+    });
+
+    function triggerAuditoriumDateChange() {
+        const event = new Event('change');
+        auditoriumDateInput.dispatchEvent(event);
+    }
+
+    // Кнопка "Показать расписание" для аудиторий
+    auditoriumShowButton.addEventListener('click', function() {
+        if (currentMode === 'auditorium') {
+            loadSchedule('auditorium');
+        }
+    });
+
+    // Кнопка "Сбросить" для аудиторий
+    auditoriumResetButton.addEventListener('click', function() {
+        auditoriumSelect.value = '';
+        auditoriumDateInput.value = '';
+        auditoriumShowButton.disabled = true;
+        auditoriumExportButton.disabled = true;
+        showEmptyState();
+        hideError();
+    });
+
+    // Кнопка "Экспорт" для аудиторий
+    auditoriumExportButton.addEventListener('click', function() {
+        const auditoriumId = auditoriumSelect.value;
+        const auditoriumName = auditoriumSelect.options[auditoriumSelect.selectedIndex].text;
+        const date = auditoriumDateInput.value;
+
+        if (!auditoriumId || !date) {
+            showError('Ошибка экспорта', 'Выберите аудиторию и дату');
+            return;
+        }
+
+        const dateObj = new Date(date);
+        const formattedDate = dateObj.toLocaleDateString('ru-RU');
+        const filename = `Расписание_${auditoriumName}_${formattedDate}.txt`;
+
+        const scheduleText = generateExportText();
+        downloadFile(filename, scheduleText);
+    });
+
     // ==================== ОБЩИЕ ФУНКЦИИ ====================
 
     // Загрузка расписания
@@ -433,6 +558,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
             url = '/api/schedule/teacher';
             body = { teacher_id: teacherId, date };
+        } else if (mode === 'auditorium') {
+            const auditoriumId = auditoriumSelect.value;
+            const date = auditoriumDateInput.value;
+
+            if (!auditoriumId || !date) {
+                showError('Ошибка', 'Выберите аудиторию и дату');
+                return;
+            }
+
+            url = '/api/schedule/auditorium';
+            body = { auditorium_id: auditoriumId, date };
         } else {
             return;
         }
@@ -493,6 +629,14 @@ document.addEventListener('DOMContentLoaded', function() {
             text = `Расписание ДВГУПС\n`;
             text += `Преподаватель: ${teacher}\n`;
             text += `Дата: ${date}\n`;
+        } else if (currentMode === 'auditorium') {
+            const auditorium = scheduleElement.querySelector('.auditorium-badge')?.textContent ||
+                          auditoriumSelect.options[auditoriumSelect.selectedIndex].text;
+            const date = scheduleElement.querySelector('h2')?.textContent.replace('Расписание на ', '') || 'Неизвестная дата';
+
+            text = `Расписание ДВГУПС\n`;
+            text += `Аудитория: ${auditorium}\n`;
+            text += `Дата: ${date}\n`;
         }
 
         text += `\n========================================\n\n`;
@@ -509,9 +653,9 @@ document.addEventListener('DOMContentLoaded', function() {
             text += `${number}. ${time}\n`;
             text += `   Дисциплина: ${subject}\n`;
 
-            if (room) text += `   Аудитория: ${room}\n`;
-            if (teacher && currentMode === 'group') text += `   Преподаватель: ${teacher}\n`;
-            if (group && currentMode === 'teacher') text += `   Группа: ${group}\n`;
+            if (room && currentMode !== 'auditorium') text += `   Аудитория: ${room}\n`;
+            if (teacher && currentMode !== 'teacher') text += `   Преподаватель: ${teacher}\n`;
+            if (group && currentMode !== 'group') text += `   Группа: ${group}\n`;
 
             text += `\n`;
         });
@@ -569,6 +713,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadSchedule('group');
             } else if (currentMode === 'teacher' && !teacherShowButton.disabled) {
                 loadSchedule('teacher');
+            } else if (currentMode === 'auditorium' && !auditoriumShowButton.disabled) {
+                loadSchedule('auditorium');
             }
         }
     });
