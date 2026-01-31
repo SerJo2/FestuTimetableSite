@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentMode = 'teacher';
                 // При первом открытии вкладки преподавателя загружаем кафедры
                 if (!departmentsLoaded) {
-                    loadDepartments();
+                    loadTeachers();
                 }
             } else if (tabId === 'auditorium-tab') {
                 auditoriumTab.classList.add('active-tab');
@@ -159,9 +159,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Установка даты по умолчанию
     function setDefaultDate() {
         const today = new Date().toISOString().split('T')[0];
+        console.log('Установка даты по умолчанию:', today);
+
         groupDateInput.value = today;
         teacherDateInput.value = today;
         auditoriumDateInput.value = today;
+
+        // Немедленно обновляем кнопки
+        updateGroupButtons();
+        updateTeacherButtons();
+        updateAuditoriumButtons();
+
+        // Также запускаем события change
+        if (groupDateInput) {
+            groupDateInput.dispatchEvent(new Event('change'));
+        }
+        if (teacherDateInput) {
+            teacherDateInput.dispatchEvent(new Event('change'));
+        }
+        if (auditoriumDateInput) {
+            auditoriumDateInput.dispatchEvent(new Event('change'));
+        }
     }
 
     // Проверка статуса сервера
@@ -241,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
         teacherExportButton.disabled = true;
 
         try {
-            const response = await fetch(`/api/teachers/${departmentId}`);
+            const response = await fetch(`/api/teachers`);
             const data = await response.json();
 
             if (data.success) {
@@ -380,43 +398,46 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================== ОБРАБОТЧИКИ СОБЫТИЙ ДЛЯ ПРЕПОДАВАТЕЛЕЙ ====================
 
     // Загрузка преподавателей при выборе кафедры
-    departmentSelect.addEventListener('change', function() {
-        const departmentId = this.value;
-
-        if (!departmentId) {
-            teacherSelect.innerHTML = '<option value="">-- Сначала выберите кафедру --</option>';
-            teacherSelect.disabled = true;
-            teacherShowButton.disabled = true;
-            teacherExportButton.disabled = true;
-            teacherCount.innerHTML = '<i class="fas fa-info-circle"></i> Преподавателей: 0';
-            return;
-        }
-
-        loadTeachers(departmentId);
-    });
+//    departmentSelect.addEventListener('change', function() {
+//        const departmentId = this.value;
+//
+//        if (!departmentId) {
+//            teacherSelect.innerHTML = '<option value="">-- Сначала выберите кафедру --</option>';
+//            teacherSelect.disabled = true;
+//            teacherShowButton.disabled = true;
+//            teacherExportButton.disabled = true;
+//            teacherCount.innerHTML = '<i class="fas fa-info-circle"></i> Преподавателей: 0';
+//            return;
+//        }
+//
+//        loadTeachers(departmentId);
+//    });
 
     // Обновление состояния кнопок для преподавателей
     teacherSelect.addEventListener('change', updateTeacherButtons);
     teacherDateInput.addEventListener('change', updateTeacherButtons);
 
     function updateTeacherButtons() {
-        const isValid = departmentSelect.value && teacherSelect.value && teacherDateInput.value;
+        const isValid = true && teacherSelect.value && teacherDateInput.value;
         teacherShowButton.disabled = !isValid;
         teacherExportButton.disabled = !isValid;
     }
 
     // Кнопки сегодня/завтра для преподавателей
     teacherTodayButton.addEventListener('click', function() {
-        const today = new Date().toISOString().split('T')[0];
-        teacherDateInput.value = today;
-        triggerTeacherDateChange();
+    const today = new Date().toISOString().split('T')[0];
+    teacherDateInput.value = today;
+    // Просто запустите событие change
+    const event = new Event('change');
+    teacherDateInput.dispatchEvent(event);
     });
 
     teacherTomorrowButton.addEventListener('click', function() {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         teacherDateInput.value = tomorrow.toISOString().split('T')[0];
-        triggerTeacherDateChange();
+        const event = new Event('change');
+        teacherDateInput.dispatchEvent(event);
     });
 
     function triggerTeacherDateChange() {
@@ -476,23 +497,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Кнопки сегодня/завтра для аудиторий
-    auditoriumTodayButton.addEventListener('click', function() {
-        const today = new Date().toISOString().split('T')[0];
-        auditoriumDateInput.value = today;
-        triggerAuditoriumDateChange();
+   auditoriumTodayButton.addEventListener('click', function() {
+    const today = new Date().toISOString().split('T')[0];
+    auditoriumDateInput.value = today;
+    const event = new Event('change');
+    auditoriumDateInput.dispatchEvent(event);
     });
 
     auditoriumTomorrowButton.addEventListener('click', function() {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         auditoriumDateInput.value = tomorrow.toISOString().split('T')[0];
-        triggerAuditoriumDateChange();
-    });
-
-    function triggerAuditoriumDateChange() {
         const event = new Event('change');
         auditoriumDateInput.dispatchEvent(event);
-    }
+    });
 
     // Кнопка "Показать расписание" для аудиторий
     auditoriumShowButton.addEventListener('click', function() {
@@ -702,6 +720,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==================== ИНИЦИАЛИЗАЦИЯ ====================
     setDefaultDate();
     checkServerStatus();
+
 
     // Проверять статус каждые 30 секунд
     setInterval(checkServerStatus, 30000);
