@@ -48,6 +48,7 @@ class GenericTimetableReader:
         Returns:
             Список словарей с занятиями
         """
+        date_str = str(date_str)
         if self.data is None:
             if not self.load_data():
                 return []
@@ -58,14 +59,22 @@ class GenericTimetableReader:
                 print(f"Ключ '{key}' не найден в данных")
                 return []
 
+
             item_data = self.data["timetables"][key]
             schedule = item_data if isinstance(item_data, dict) else item_data.get("schedule", {})
 
+
             # Получаем расписание на указанную дату
-            day_schedule = schedule.get(date_str, [])
+            print(';')
+            try:
+                day_schedule = schedule['schedule'][date_str]
+            except Exception as e:
+                day_schedule = schedule[date_str]
+
 
             # Преобразуем формат данных к ожидаемому
             lectures = []
+
             for lecture in day_schedule:
                 lecture_dict = {
                     'time': lecture.get('time', ''),
@@ -125,6 +134,14 @@ class GenericTimetableReader:
                 return False
 
         return key in self.data.get("timetables", {})
+
+    def check_group_exists(self, group: str) -> bool:
+        """Проверяет, существует ли группа в данных."""
+        if self.data is None:
+            if not self.load_data():
+                return False
+
+        return group in self.data.get("timetables", {})
 
     def get_key_info(self, key: str) -> Dict[str, Any]:
         """Возвращает информацию по ключу."""
