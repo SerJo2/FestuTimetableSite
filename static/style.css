@@ -895,3 +895,111 @@ body {
         padding: 20px;
     }
 }
+
+
+/* Стили для состояния "нет расписания" */
+.no-schedule {
+    padding: 60px 30px;
+    text-align: center;
+    background: var(--light-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin: 30px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.no-schedule-icon {
+    font-size: 4rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    opacity: 0.5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, rgba(0, 86, 179, 0.1), rgba(108, 117, 125, 0.1));
+    border-radius: 50%;
+    margin: 0 auto 25px;
+    transition: var(--transition);
+}
+
+.no-schedule-icon i {
+    font-size: 3.5rem;
+}
+
+.no-schedule h3 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: var(--dark-color);
+    font-weight: 600;
+}
+
+.no-schedule p {
+    color: var(--secondary-color);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.no-schedule:hover .no-schedule-icon {
+    opacity: 0.8;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 86, 179, 0.2);
+}
+
+/* Анимация для плавного появления */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .no-schedule {
+        padding: 40px 20px;
+        margin: 20px 15px;
+    }
+
+    .no-schedule-icon {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 20px;
+    }
+
+    .no-schedule-icon i {
+        font-size: 2.8rem;
+    }
+
+    .no-schedule h3 {
+        font-size: 1.5rem;
+    }
+
+    .no-schedule p {
+        font-size: 1rem;
+        padding: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .no-schedule {
+        padding: 30px 15px;
+    }
+
+    .no-schedule-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .no-schedule-icon i {
+        font-size: 2.5rem;
+    }
+}

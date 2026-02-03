@@ -1,6 +1,8 @@
+import traceback
+
 from flask import Flask, render_template, request, jsonify, render_template_string
 from flask_caching import Cache
-from datetime import datetime
+from datetime import datetime, timedelta
 from festutimetable import TimetableService
 from festutimetable.FestuApi import DateNotFoundError, GroupNotFoundError
 import requests
@@ -373,10 +375,10 @@ def get_schedule():
             }), 400
 
         # Получаем расписание ИЗ JSON
-        lectures = group_timetable_reader.get_timetable_by_day(group, formatted_date)
+        weekly = group_timetable_reader.get_timetable_by_week(group, formatted_date)
 
         # Если группа не найдена, предлагаем похожие группы
-        if not lectures and not group_timetable_reader.check_group_exists(group):
+        if not weekly and not group_timetable_reader.check_group_exists(group):
             available_groups = group_timetable_reader.get_available_groups()
             similar_groups = [g for g in available_groups if group.upper() in g.upper()]
 
@@ -391,25 +393,28 @@ def get_schedule():
 
         # Преобразуем в удобный формат
         schedule_data = []
-        for lecture in lectures:
-            schedule_data.append({
-                'number': lecture.get('time', ''),  # или lecture.get('number', '') если нужен номер пары
-                'name': lecture.get('name', ''),
-                'classroom': lecture.get('classroom', ''),
-                'teacher': lecture.get('teacher', ''),
-                'group': lecture.get('group', group)
-            })
+        for day in weekly:
+            day_data =[]
+            for lecture in day:
+                day_data.append({
+                    'number': lecture.get('time', ''),  # или lecture.get('number', '') если нужен номер пары
+                    'name': lecture.get('name', ''),
+                    'classroom': lecture.get('classroom', ''),
+                    'teacher': lecture.get('teacher', ''),
+                    'group': lecture.get('group', group)
+                })
+            schedule_data.append(day_data)
 
         return jsonify({
             'success': True,
             'date': formatted_date,
             'group': group,
             'schedule': schedule_data,
-            'html': generate_group_schedule_html(schedule_data, group, formatted_date)
+            'html': genarate_weekly_schedule_html(schedule_data, group, formatted_date)
         })
 
     except Exception as e:
-        print(f"Ошибка в обработке запроса: {e}")
+        print(f"Ошибка в обработке запроса: {e} \n {traceback.format_exc()} \n {type(e).__name__}")
         return jsonify({
             'success': False,
             'error': 'Внутренняя ошибка сервера'
@@ -465,10 +470,10 @@ def get_teacher_schedule():
 
         # Получаем расписание ИЗ JSON для преподавателя
         schedule_data = []
-        lectures = teacher_timetable_reader.get_timetable_by_day(teacher_name, formatted_date)
+        weekly = teacher_timetable_reader.get_timetable_by_week(teacher_name, formatted_date)
 
         # Если преподаватель не найден, предлагаем похожих преподавателей
-        if not lectures and not teacher_timetable_reader.check_key_exists(teacher_name):
+        if not weekly and not teacher_timetable_reader.check_key_exists(teacher_name):
             available_teachers = teacher_timetable_reader.get_available_keys()
             similar_teachers = [t for t in available_teachers if teacher_name.upper() in t.upper()]
 
@@ -482,14 +487,17 @@ def get_teacher_schedule():
             }), 404
 
         # Преобразуем в удобный формат
-        for lecture in lectures:
-            schedule_data.append({
-                'number': lecture.get('time', ''),  # Используем время как номер пары
-                'name': lecture.get('name', ''),
-                'classroom': lecture.get('classroom', ''),
-                'teacher': lecture.get('teacher', ''),
-                'group': lecture.get('group', '')
-            })
+        for day in weekly:
+            day_data = []
+            for lecture in day:
+                day_data.append({
+                    'number': lecture.get('time', ''),  # Используем время как номер пары
+                    'name': lecture.get('name', ''),
+                    'classroom': lecture.get('classroom', ''),
+                    'teacher': lecture.get('teacher', ''),
+                    'group': lecture.get('group', '')
+                })
+            schedule_data.append(day_data)
 
         # Генерируем HTML используя вашу функцию
         html = generate_group_schedule_html(schedule_data, f"Преподаватель: {teacher_name}", formatted_date)
@@ -503,7 +511,7 @@ def get_teacher_schedule():
         })
 
     except Exception as e:
-        print(f"Ошибка в обработке запроса преподавателя: {e}")
+        print(f"Ошибка в обработке запроса преподавателя: {e} \n {traceback.format_exc()}")
         return jsonify({
             'success': False,
             'error': 'Внутренняя ошибка сервера'
@@ -575,10 +583,10 @@ def get_auditorium_schedule():
 
         # Получаем расписание ИЗ JSON для аудитории
         schedule_data = []
-        lectures = classroom_timetable_reader.get_timetable_by_day(auditorium_name, formatted_date)
+        weekly = classroom_timetable_reader.get_timetable_by_week(auditorium_name, formatted_date)
 
         # Если аудитория не найдена, предлагаем похожие аудитории
-        if not lectures and not classroom_timetable_reader.check_key_exists(auditorium_name):
+        if not weekly and not classroom_timetable_reader.check_key_exists(auditorium_name):
             # Пробуем найти аудитории с похожим названием
             available_classrooms = classroom_timetable_reader.get_available_keys()
             similar_classrooms = [c for c in available_classrooms if auditorium_name in c]
@@ -593,17 +601,20 @@ def get_auditorium_schedule():
             }), 404
 
         # Преобразуем в удобный формат
-        for lecture in lectures:
-            schedule_data.append({
-                'number': lecture.get('time', ''),  # Используем время как номер пары
-                'name': lecture.get('name', ''),
-                'classroom': lecture.get('classroom', ''),
-                'teacher': lecture.get('teacher', ''),
-                'group': lecture.get('group', '')
-            })
+        for day in weekly:
+            day_data = []
+            for lecture in day:
+                day_data.append({
+                    'number': lecture.get('time', ''),  # Используем время как номер пары
+                    'name': lecture.get('name', ''),
+                    'classroom': lecture.get('classroom', ''),
+                    'teacher': lecture.get('teacher', ''),
+                    'group': lecture.get('group', '')
+                })
+            schedule_data.append(day_data)
 
         # Генерируем HTML используя вашу функцию
-        html = generate_group_schedule_html(schedule_data, f"Аудитория: {auditorium_name}", formatted_date)
+        html = genarate_weekly_schedule_html(schedule_data, f"Аудитория: {auditorium_name}", formatted_date)
 
         return jsonify({
             'success': True,
@@ -615,22 +626,35 @@ def get_auditorium_schedule():
         })
 
     except Exception as e:
-        print(f"Ошибка в обработке запроса аудитории: {e}")
+        print(f"Ошибка в обработке запроса аудитории: {e} \n {traceback.format_exc()}")
         return jsonify({
             'success': False,
             'error': 'Внутренняя ошибка сервера'
         }), 500
 
+
+def genarate_weekly_schedule_html(schedule_data, group, date):
+    final_html = ""
+    date_datetime = datetime.strptime(date, '%d.%m.%Y')
+    current_date = date_datetime
+    print("GRJKGOIWEJGIOPERJHWE")
+    print(schedule_data)
+    for i in range(7):
+        final_html += generate_group_schedule_html(schedule_data[i], group, current_date.strftime("%d.%m.%Y"))
+        current_date = date_datetime + timedelta(days=i)
+    return final_html
+
+
 def generate_group_schedule_html(schedule_data, group, date):
     """Генерация HTML таблицы расписания для группы"""
     if not schedule_data:
-        return '''
+        return f'''
         <div class="no-schedule">
             <div class="no-schedule-icon">
                 <i class="fas fa-calendar-times"></i>
             </div>
             <h3>Занятий нет</h3>
-            <p>На выбранную дату у группы нет занятий</p>
+            <p>На {date} у группы нет занятий</p>
         </div>
         '''
 
@@ -667,6 +691,7 @@ def generate_group_schedule_html(schedule_data, group, date):
 
     for i, lesson in enumerate(schedule_data):
         row_class = 'even' if i % 2 == 0 else 'odd'
+        print(i, lesson)
 
         html += f'''
                     <tr class="{row_class}">

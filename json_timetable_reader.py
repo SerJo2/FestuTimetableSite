@@ -1,7 +1,7 @@
 import json
 import os
 from typing import List, Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class GenericTimetableReader:
@@ -93,6 +93,18 @@ class GenericTimetableReader:
         except Exception as e:
             print(f"Ошибка при получении расписания: {e}")
             return []
+
+    def get_timetable_by_week(self, key: str, date_str: str):
+        date_datetime = datetime.strptime(date_str, '%d.%m.%Y')
+        current_date = date_datetime
+        schedule = list()
+        schedule.append(self.get_timetable_by_day(key, date_str))
+        for i in range(7):
+            schedule.append(self.get_timetable_by_day(key, current_date.strftime("%d.%m.%Y")))
+            current_date = date_datetime + timedelta(days=i)
+
+        return schedule
+
 
     def get_available_keys(self) -> List[str]:
         """Возвращает список доступных ключей (групп/преподавателей/аудиторий)."""
