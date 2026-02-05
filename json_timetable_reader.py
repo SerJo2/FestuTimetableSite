@@ -98,10 +98,12 @@ class GenericTimetableReader:
         date_datetime = datetime.strptime(date_str, '%d.%m.%Y')
         current_date = date_datetime
         schedule = list()
-        schedule.append(self.get_timetable_by_day(key, date_str))
         for i in range(7):
-            schedule.append(self.get_timetable_by_day(key, current_date.strftime("%d.%m.%Y")))
+            print("test")
+            print(schedule)
             current_date = date_datetime + timedelta(days=i)
+            schedule.append(self.get_timetable_by_day(key, current_date.strftime("%d.%m.%Y")))
+
 
         return schedule
 

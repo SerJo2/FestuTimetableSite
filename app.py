@@ -1,4 +1,5 @@
 import traceback
+from pprint import pprint
 
 from flask import Flask, render_template, request, jsonify, render_template_string
 from flask_caching import Cache
@@ -489,6 +490,7 @@ def get_teacher_schedule():
         # Преобразуем в удобный формат
         for day in weekly:
             day_data = []
+            print(day)
             for lecture in day:
                 day_data.append({
                     'number': lecture.get('time', ''),  # Используем время как номер пары
@@ -500,7 +502,7 @@ def get_teacher_schedule():
             schedule_data.append(day_data)
 
         # Генерируем HTML используя вашу функцию
-        html = generate_group_schedule_html(schedule_data, f"Преподаватель: {teacher_name}", formatted_date)
+        html = genarate_weekly_schedule_html(schedule_data, f"Преподаватель: {teacher_name}", formatted_date)
 
         return jsonify({
             'success': True,
@@ -637,11 +639,10 @@ def genarate_weekly_schedule_html(schedule_data, group, date):
     final_html = ""
     date_datetime = datetime.strptime(date, '%d.%m.%Y')
     current_date = date_datetime
-    print("GRJKGOIWEJGIOPERJHWE")
-    print(schedule_data)
     for i in range(7):
-        final_html += generate_group_schedule_html(schedule_data[i], group, current_date.strftime("%d.%m.%Y"))
         current_date = date_datetime + timedelta(days=i)
+        final_html += generate_group_schedule_html(schedule_data[i], group, current_date.strftime("%d.%m.%Y"))
+
     return final_html
 
 
@@ -691,7 +692,6 @@ def generate_group_schedule_html(schedule_data, group, date):
 
     for i, lesson in enumerate(schedule_data):
         row_class = 'even' if i % 2 == 0 else 'odd'
-        print(i, lesson)
 
         html += f'''
                     <tr class="{row_class}">
