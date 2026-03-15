@@ -820,6 +820,8 @@ def get_schedule():
                     'group': lecture.get('group', group)
                 })
             schedule_data.append(day_data)
+        for i in range(len(schedule_data)):
+            schedule_data[i] = sorted(schedule_data[i], key=lambda x: x['number'])
 
         return jsonify({
             'success': True,
@@ -1104,7 +1106,6 @@ def generate_group_schedule_html(schedule_data, group, date):
                 </thead>
                 <tbody>
     '''
-
     for i, lesson in enumerate(schedule_data):
         row_class = 'even' if i % 2 == 0 else 'odd'
 
