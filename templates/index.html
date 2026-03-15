@@ -35,6 +35,10 @@
 
     <!-- Для Telegram -->
     <meta property="telegram:image" content="{{ url_for('static', filename='og-image.jpg', _external=True) }}">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -146,12 +150,21 @@
 
                     <!-- Выбор преподавателя -->
                     <div class="control-group">
+
                         <label for="teacher-select">
                             <i class="fas fa-user-tie"></i> Преподаватель:
                         </label>
                         <select id="teacher-select" class="form-control" disabled>
                             <option value="">-- Сначала выберите кафедру --</option>
                         </select>
+                        <script>
+                          $(document).ready(function() {
+                            $('#teacher-select').select2({
+                              placeholder: 'Выберите преподавателя',
+                              allowClear: true
+                            });
+                          });
+                        </script>
                         <div class="group-count" id="teacher-count">
                             <i class="fas fa-info-circle"></i> Преподавателей: 0
                         </div>
