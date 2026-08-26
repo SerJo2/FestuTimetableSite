@@ -1456,3 +1456,6 @@ cython_debug/
 ### Example user template
 
 # IntelliJ project files
+/db/classrooms_timetable.json
+/db/teachers_timetable.json
+/db/timetable.json
