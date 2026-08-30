@@ -15,7 +15,7 @@ from json_timetable_reader import group_timetable_reader, teacher_timetable_read
 application = Flask(__name__)
 cache = Cache(application, config={'CACHE_TYPE': 'simple'})
 
-from institute_groups import INSTITUTES, INSTITUTE_GROUPS
+from institute_groups import INSTITUTES, INSTITUTE_GROUPS, NEW_GROUPS
 
 
 timetable_service = TimetableService()
@@ -757,6 +757,15 @@ def get_teachers():
         'success': True,
         'teachers': teachers
     })
+
+@application.route('/api/all_groups')
+def get_all_groups():
+    """Получить список всех групп из NEW_GROUPS"""
+    try:
+        groups_list = [{'id': code, 'text': code} for code in NEW_GROUPS.keys()]
+        return jsonify({'success': True, 'groups': groups_list})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @application.route('/api/schedule', methods=['POST'])
 def get_schedule():
