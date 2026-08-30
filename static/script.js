@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
     checkServerStatus();
     setInterval(checkServerStatus, 30000);
 
-    // Загружаем все группы при старте
     loadAllGroups();
 
     // ==================== ФУНКЦИИ ====================
@@ -103,6 +102,9 @@ document.addEventListener('DOMContentLoaded', function() {
         updateGroupButtons();
         updateTeacherButtons();
         updateAuditoriumButtons();
+        groupDateInput.dispatchEvent(new Event('change'));
+        teacherDateInput.dispatchEvent(new Event('change'));
+        auditoriumDateInput.dispatchEvent(new Event('change'));
     }
 
     async function checkServerStatus() {
@@ -146,6 +148,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     placeholder: 'Выберите группу',
                     allowClear: true
                 });
+                // При выборе через Select2 обновляем кнопки
+                $(groupSelect).on('select2:select select2:clear', function(e) {
+                    updateGroupButtons();
+                });
                 updateGroupButtons();
             } else {
                 showError('Ошибка загрузки групп', data.error || 'Неизвестная ошибка');
@@ -155,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Загрузка всех преподавателей (без кафедры)
+    // Загрузка всех преподавателей
     async function loadAllTeachers() {
         teacherSelect.innerHTML = '<option value="">Загрузка преподавателей...</option>';
         teacherSelect.disabled = true;
@@ -180,6 +186,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 $(teacherSelect).select2({
                     placeholder: 'Выберите преподавателя',
                     allowClear: true
+                });
+                $(teacherSelect).on('select2:select select2:clear', function(e) {
+                    updateTeacherButtons();
                 });
                 updateTeacherButtons();
             } else {
@@ -216,6 +225,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     placeholder: 'Выберите аудиторию',
                     allowClear: true
                 });
+                $(auditoriumSelect).on('select2:select select2:clear', function(e) {
+                    updateAuditoriumButtons();
+                });
                 updateAuditoriumButtons();
             } else {
                 showError('Ошибка загрузки', data.error || 'Неизвестная ошибка');
@@ -251,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     groupResetButton.addEventListener('click', function() {
-        groupSelect.val(null).trigger('change');
+        $(groupSelect).val(null).trigger('change');
         groupDateInput.value = '';
         updateGroupButtons();
         showEmptyState();
@@ -298,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     teacherResetButton.addEventListener('click', function() {
-        teacherSelect.val(null).trigger('change');
+        $(teacherSelect).val(null).trigger('change');
         teacherDateInput.value = '';
         updateTeacherButtons();
         showEmptyState();
@@ -346,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     auditoriumResetButton.addEventListener('click', function() {
-        auditoriumSelect.val(null).trigger('change');
+        $(auditoriumSelect).val(null).trigger('change');
         auditoriumDateInput.value = '';
         updateAuditoriumButtons();
         showEmptyState();
